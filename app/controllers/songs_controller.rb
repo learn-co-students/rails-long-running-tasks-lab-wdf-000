@@ -1,5 +1,5 @@
 class SongsController < ApplicationController
-
+  require 'csv'
   def index
     @songs = Song.all
   end
@@ -36,6 +36,18 @@ class SongsController < ApplicationController
     else
       render :edit
     end
+  end
+
+  def upload
+    CSV.foreach(params[:file].path, headers: true) do |song|
+      # binding.pry
+      # "Song Clean":"Caught Up in You" "ARTIST CLEAN":".38 Special" 
+      # "Release Year":"1982" "COMBINED":"Caught Up in You by .38 
+      # Special" "First?":"1" "Year?":"1" "PlayCount":"82" "F*G":"82
+      artist = Artist.find_or_create_by(name: song[1])
+      artist.songs.create(title: song[0])
+    end
+    redirect_to songs_path
   end
 
   def destroy
